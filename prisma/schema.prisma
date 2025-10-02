@@ -35,6 +35,11 @@ enum BookingStatus {
 	COMPLETED
 }
 
+enum AdminRole {
+	OWNER
+	ADMIN
+}
+
 // Models
 model Apartment {
 	id                String          @id @default(uuid())
@@ -116,5 +121,73 @@ model PricingRule {
 
 	@@index([apartmentId, startDate, endDate, active])
 	@@map("pricing_rules")
+}
+
+// BetterAuth Models
+model AdminUser {
+	id            String    @id @default(uuid())
+	email         String    @unique
+	emailVerified Boolean   @default(false)
+	name          String
+	image         String?
+	role          AdminRole @default(ADMIN)
+	lastLoginAt   DateTime?
+	createdAt     DateTime  @default(now())
+	updatedAt     DateTime  @updatedAt
+
+	// Relations
+	sessions Session[]
+	accounts Account[]
+
+	@@index([email])
+	@@map("admin_users")
+}
+
+model Session {
+	id        String   @id @default(uuid())
+	userId    String
+	expiresAt DateTime
+	token     String   @unique
+	ipAddress String?
+	userAgent String?
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	user AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+	@@index([userId])
+	@@map("sessions")
+}
+
+model Account {
+	id           String    @id @default(uuid())
+	userId       String
+	accountId    String
+	providerId   String
+	accessToken  String?
+	refreshToken String?
+	idToken      String?
+	expiresAt    DateTime?
+	password     String?
+	createdAt    DateTime  @default(now())
+	updatedAt    DateTime  @updatedAt
+
+	user AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+	@@unique([providerId, accountId])
+	@@index([userId])
+	@@map("accounts")
+}
+
+model Verification {
+	id         String   @id @default(uuid())
+	identifier String
+	value      String
+	expiresAt  DateTime
+	createdAt  DateTime @default(now())
+	updatedAt  DateTime @updatedAt
+
+	@@unique([identifier, value])
+	@@map("verifications")
 }
 

@@ -11,7 +11,7 @@ A modern apartment booking and management system built with Next.js 15, TypeScri
 - **Icons:** Lucide React
 - **Package Manager:** pnpm 10+
 - **Database:** PostgreSQL with Prisma ORM (configured in Story 1.2)
-- **Authentication:** NextAuth.js (configured in Story 1.3)
+- **Authentication:** BetterAuth with email/password (configured in Story 1.3)
 - **Email:** Resend API (configured in Story 2.4)
 - **Image Upload:** Cloudinary (configured in Story 1.5)
 - **Code Quality:** ESLint, Prettier, Husky
@@ -60,8 +60,8 @@ cp .env.example .env.local
 Edit \`.env.local\` and fill in your environment variables:
 
 - \`DATABASE_URL\`: PostgreSQL connection string
-- \`NEXTAUTH_SECRET\`: Secret for NextAuth.js (generate with \`openssl rand -base64 32\`)
-- \`NEXTAUTH_URL\`: Application URL (http://localhost:3000 for development)
+- \`BETTER_AUTH_SECRET\`: Secret for BetterAuth (generate with \`openssl rand -base64 32\`)
+- \`BETTER_AUTH_URL\`: Application URL (http://localhost:3000 for development)
 - \`RESEND_API_KEY\`: API key for Resend email service
 - \`CLOUDINARY_CLOUD_NAME\`, \`CLOUDINARY_API_KEY\`, \`CLOUDINARY_API_SECRET\`: Cloudinary credentials
 - \`SENTRY_DSN\`: Sentry DSN for error tracking (optional)
@@ -80,6 +80,22 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Admin Credentials (Development Only)
+
+After running migrations and creating the admin user (see below), use these credentials to log in:
+
+- **Email:** admin@example.com
+- **Password:** admin123
+- **Login URL:** http://localhost:3000/admin/login
+
+⚠️ **Important:** Change these credentials in production!
+
+To create an admin user, start the dev server and run:
+
+\`\`\`bash
+pnpm create-admin
+\`\`\`
+
 ## Development Commands
 
 \`\`\`bash
@@ -90,6 +106,7 @@ pnpm lint # Run ESLint
 pnpm lint:fix # Fix ESLint errors
 pnpm format # Format code with Prettier
 pnpm type-check # Run TypeScript type checking
+pnpm create-admin # Create admin user via BetterAuth API
 \`\`\`
 
 ## Project Structure
@@ -157,8 +174,8 @@ See \`.env.example\` for all required environment variables.
 ### Required for Development
 
 - \`DATABASE_URL\`: PostgreSQL connection string
-- \`NEXTAUTH_SECRET\`: NextAuth.js secret
-- \`NEXTAUTH_URL\`: Application URL
+- \`BETTER_AUTH_SECRET\`: BetterAuth secret
+- \`BETTER_AUTH_URL\`: Application URL
 
 ### Optional for Development
 

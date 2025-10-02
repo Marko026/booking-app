@@ -32,10 +32,15 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 // Export types for convenience
 export type {
+	Account,
+	AdminRole,
+	AdminUser,
 	Apartment,
-	Guest,
-	Booking,
-	PricingRule,
 	ApartmentStatus,
+	Booking,
 	BookingStatus,
+	Guest,
+	PricingRule,
+	Session,
+	Verification,
 } from '@prisma/client'
