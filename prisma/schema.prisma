@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//
+// SQLite Compatibility Notes:
+// - Float used instead of Decimal for currency (SQLite limitation)
+// - String used for photos array (stored as JSON string)
+// - DateTime used for dates (no separate Date type in SQLite)
+//
+// For PostgreSQL production deployment:
+// - Change provider to "postgresql"
+// - Update basePricePerNight/totalPrice/pricePerNight to Decimal @db.Decimal(10, 2)
+// - Update photos to String[] (native array support)
+// - Update date fields to @db.Date if needed
+
+generator client {
+	provider = "prisma-client-js"
+}
+
+datasource db {
+	provider = "sqlite"
+	url      = env("DATABASE_URL")
+}
+
+// Enums
+enum ApartmentStatus {
+	ACTIVE
+	MAINTENANCE
+	INACTIVE
+}
+
+enum BookingStatus {
+	PENDING
+	CONFIRMED
+	CANCELLED
+	COMPLETED
+}
+
+// Models
+model Apartment {
+	id                String          @id @default(uuid())
+	name              String
+	description       String
+	maxGuests         Int
+	basePricePerNight Float
+	photos            String // Stored as JSON string in SQLite, array in PostgreSQL
+	amenities         Json
+	status            ApartmentStatus @default(ACTIVE)
+	createdAt         DateTime        @default(now())
+	updatedAt         DateTime        @updatedAt
+
+	// Relations
+	bookings     Booking[]
+	pricingRules PricingRule[]
+
+	@@map("apartments")
+}
+
+model Guest {
+	id        String   @id @default(uuid())
+	firstName String
+	lastName  String
+	email     String   @unique
+	phone     String
+	notes     String?
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	// Relations
+	bookings Booking[]
+
+	@@index([email])
+	@@map("guests")
+}
+
+model Booking {
+	id               String        @id @default(uuid())
+	apartmentId      String
+	guestId          String
+	confirmationCode String        @unique
+	startDate        DateTime
+	endDate          DateTime
+	numberOfGuests   Int
+	totalPrice       Float
+	status           BookingStatus @default(PENDING)
+	notes            String?
+	cancelledAt      DateTime?
+	createdAt        DateTime      @default(now())
+	updatedAt        DateTime      @updatedAt
+
+	// Relations
+	apartment Apartment @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+	guest     Guest     @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+	@@index([apartmentId, startDate, endDate])
+	@@index([confirmationCode])
+	@@index([status])
+	@@index([guestId])
+	@@map("bookings")
+}
+
+model PricingRule {
+	id               String   @id @default(uuid())
+	apartmentId      String
+	name             String
+	startDate        DateTime
+	endDate          DateTime
+	pricePerNight    Float
+	minStayDuration  Int?
+	priority         Int
+	active           Boolean  @default(true)
+	createdAt        DateTime @default(now())
+	updatedAt        DateTime @updatedAt
+
+	// Relations
+	apartment Apartment @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+
+	@@index([apartmentId, startDate, endDate, active])
+	@@map("pricing_rules")
+}
+
