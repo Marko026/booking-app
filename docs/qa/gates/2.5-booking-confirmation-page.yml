@@ -1,0 +1,95 @@
+# Quality Gate Decision for Story 2.5: Booking Confirmation Page & Lookup
+schema: 1
+story: '2.5'
+story_title: 'Booking Confirmation Page & Lookup'
+gate: 'CONCERNS'
+status_reason: 'Critical security vulnerabilities identified around confirmation code generation and data exposure'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-01-12T11:00:00Z'
+
+# Always present but only active when WAIVED
+waiver: { active: false }
+
+# Issues identified during review
+top_issues:
+  - id: 'SEC-001'
+    severity: high
+    finding: 'Confirmation code enumeration vulnerability - no security requirements for code generation'
+    suggested_action: 'Implement cryptographically secure confirmation code generation (UUID v4)'
+    suggested_owner: 'dev'
+  - id: 'SEC-002'
+    severity: high
+    finding: 'Missing rate limiting on lookup API could enable brute force attacks'
+    suggested_action: 'Add rate limiting to lookup API (e.g., 5 attempts per minute per IP)'
+    suggested_owner: 'dev'
+  - id: 'SEC-003'
+    severity: medium
+    finding: 'No input validation specified for confirmation codes'
+    suggested_action: 'Add comprehensive input validation and sanitization for confirmation codes'
+    suggested_owner: 'dev'
+  - id: 'SEC-004'
+    severity: medium
+    finding: 'Share functionality could be abused for information harvesting'
+    suggested_action: 'Implement abuse prevention mechanisms for share functionality'
+    suggested_owner: 'dev'
+  - id: 'DATA-001'
+    severity: medium
+    finding: 'Data exposure risk through confirmation page access'
+    suggested_action: 'Define strict data exposure limits (no sensitive admin data)'
+    suggested_owner: 'dev'
+  - id: 'TEST-001'
+    severity: medium
+    finding: 'Missing specific test requirements for security and functionality'
+    suggested_action: 'Add comprehensive test scenarios covering all acceptance criteria and security aspects'
+    suggested_owner: 'dev'
+
+# Risk summary
+risk_summary:
+  totals: { critical: 0, high: 2, medium: 4, low: 0 }
+  recommendations:
+    must_fix:
+      - 'Implement secure confirmation code generation (SEC-001)'
+      - 'Add rate limiting to lookup API (SEC-002)'
+    monitor:
+      - 'Lookup API usage patterns for abuse detection'
+      - 'Confirmation page access patterns'
+
+# Evidence from review
+evidence:
+  tests_reviewed: 0
+  risks_identified: 6
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] # All ACs defined but need security test coverage
+    ac_gaps: []
+
+# Non-functional requirements validation
+nfr_validation:
+  security:
+    status: CONCERNS
+    notes: 'Critical vulnerabilities in confirmation code security and API protection'
+  performance:
+    status: PASS
+    notes: 'Simple API design and static page structure provide good performance'
+  reliability:
+    status: CONCERNS
+    notes: 'Missing error handling requirements for API failures'
+  maintainability:
+    status: PASS
+    notes: 'Clear separation of concerns and standard REST API pattern'
+
+# Recommendations
+recommendations:
+  immediate: # Must fix before production
+    - action: 'Implement cryptographically secure confirmation code generation'
+      refs: ['Booking creation logic']
+    - action: 'Add rate limiting to lookup API'
+      refs: ['GET /api/bookings/:confirmationCode endpoint']
+    - action: 'Add input validation for confirmation codes'
+      refs: ['Lookup API input validation']
+  future: # Can be addressed later
+    - action: 'Implement caching for frequently accessed confirmation pages'
+      refs: ['Confirmation page rendering']
+    - action: 'Add comprehensive error handling for API failures'
+      refs: ['API error handling middleware']
+    - action: 'Implement abuse prevention for share functionality'
+      refs: ['Share booking functionality']

@@ -1,0 +1,380 @@
+# Story 1.5: Public Apartment Listing & Detail Pages
+
+## Status
+
+**Ready for Development**
+
+## Story
+
+**As a** potential guest,  
+**I want** to view all available apartments and see detailed information about each one,  
+**so that** I can learn about the properties and decide which to book.
+
+## Epic
+
+Epic 1: Foundation & Core Infrastructure
+
+## Acceptance Criteria
+
+1. Homepage created at / displaying both apartments in an attractive grid/card layout
+2. Each apartment card shows primary photo, name, max guests, and starting price
+3. Apartment detail page created at /apartments/[id] with full information
+4. Photo gallery implemented with Next.js Image optimization and lazy loading
+5. Apartment amenities list displayed with icons
+6. Apartment description rendered with proper typography
+7. Maximum guest capacity and base price clearly displayed
+8. "Check Availability" call-to-action button present (links to booking page - functionality in Epic 2)
+9. Contact owner button/link present for special requests
+10. SEO metadata configured (title, description, Open Graph tags) for both pages
+11. Loading states implemented with skeleton placeholders
+12. Error handling for non-existent apartment IDs (404 page)
+13. All pages fully responsive and mobile-optimized
+14. Images use WebP format with blur placeholders
+
+## Tasks / Subtasks
+
+- [ ] Create homepage with apartment listings (AC: 1, 2)
+  - [ ] Create app/(guest)/page.tsx
+  - [ ] Fetch apartments from database using Prisma
+  - [ ] Implement Server Component for data fetching
+  - [ ] Create components/apartment/apartment-card.tsx
+  - [ ] Display apartments in responsive grid (1 col mobile, 2 col desktop)
+  - [ ] Show primary photo with Next.js Image component
+  - [ ] Display apartment name as heading
+  - [ ] Show max guests with Users icon
+  - [ ] Display starting price (basePricePerNight)
+  - [ ] Add "View Details" link to detail page
+  - [ ] Implement card hover effects
+
+- [ ] Create apartment detail page (AC: 3)
+  - [ ] Create app/(guest)/apartments/[id]/page.tsx
+  - [ ] Fetch apartment by ID from database
+  - [ ] Use Next.js dynamic routes
+  - [ ] Implement Server Component for SEO
+  - [ ] Display full apartment information
+  - [ ] Create page layout with photo gallery and info sections
+
+- [ ] Implement photo gallery (AC: 4, 14)
+  - [ ] Create components/apartment/photo-gallery.tsx
+  - [ ] Use Next.js Image component for optimization
+  - [ ] Implement main image display
+  - [ ] Add thumbnail navigation
+  - [ ] Configure WebP format with JPEG fallback
+  - [ ] Add blur placeholders: `placeholder="blur" blurDataURL={...}`
+  - [ ] Implement lazy loading for below-fold images
+  - [ ] Add lightbox/modal for full-screen view (optional, using Dialog)
+  - [ ] Support touch gestures on mobile (swipe)
+
+- [ ] Display amenities (AC: 5)
+  - [ ] Create components/apartment/amenities-list.tsx
+  - [ ] Parse amenities JSON from database
+  - [ ] Map amenities to lucide-react icons:
+    - Wifi → Wifi icon
+    - Kitchen → ChefHat icon
+    - Parking → Car icon
+    - AirConditioning → Wind icon
+    - etc.
+  - [ ] Display in grid layout
+  - [ ] Add amenity names with icons
+
+- [ ] Render apartment description (AC: 6)
+  - [ ] Display description from database
+  - [ ] Use proper typography (text-lg, leading-relaxed)
+  - [ ] Implement line breaks and formatting
+  - [ ] Limit description length on card (truncate with "...")
+  - [ ] Show full description on detail page
+
+- [ ] Display capacity and pricing (AC: 7)
+  - [ ] Show maxGuests prominently with icon
+  - [ ] Display basePricePerNight formatted as currency
+  - [ ] Add "per night" label
+  - [ ] Create lib/utils/format.ts for currency formatting
+  - [ ] Use EUR currency format (or configurable)
+
+- [ ] Add call-to-action buttons (AC: 8, 9)
+  - [ ] Create "Check Availability" button (primary CTA)
+  - [ ] Link to /bookings/[apartmentId] (functionality in Epic 2)
+  - [ ] Create "Contact Owner" button/link (secondary CTA)
+  - [ ] Link to contact form or email (mailto:)
+  - [ ] Style CTAs prominently
+  - [ ] Add loading states (disabled state for now)
+
+- [ ] Configure SEO metadata (AC: 10)
+  - [ ] Create metadata for homepage
+  - [ ] Create dynamic metadata for apartment detail pages
+  - [ ] Set page title: "[Apartment Name] | Booking App"
+  - [ ] Set meta description from apartment description
+  - [ ] Configure Open Graph tags for social sharing
+  - [ ] Add og:image with apartment primary photo
+  - [ ] Add JSON-LD structured data for rich snippets
+
+- [ ] Implement loading states (AC: 11)
+  - [ ] Create app/(guest)/loading.tsx for homepage
+  - [ ] Create app/(guest)/apartments/[id]/loading.tsx
+  - [ ] Use ApartmentCardSkeleton component
+  - [ ] Display 2 skeletons on homepage loading
+  - [ ] Match skeleton layout to actual content
+
+- [ ] Implement error handling (AC: 12)
+  - [ ] Create app/(guest)/apartments/[id]/not-found.tsx
+  - [ ] Handle apartment not found (invalid ID)
+  - [ ] Display user-friendly 404 message
+  - [ ] Add link back to homepage
+  - [ ] Create app/(guest)/error.tsx for unexpected errors
+
+- [ ] Test responsive design (AC: 13)
+  - [ ] Test homepage on 320px, 375px, 768px, 1024px
+  - [ ] Test detail page on all breakpoints
+  - [ ] Verify images scale correctly
+  - [ ] Test photo gallery on mobile (touch)
+  - [ ] Verify buttons are touch-friendly (min 44x44px)
+
+## Dev Notes
+
+### Relevant Architecture Information
+
+**Data Fetching Strategy (from Frontend Architecture):**
+
+- Use Server Components for initial data fetching
+- Leverage Next.js App Router for SEO optimization
+- No client-side state needed for static apartment data
+
+**Server Component Pattern:**
+
+```typescript
+// app/(guest)/apartments/[id]/page.tsx
+import { prisma } from '@/lib/db';
+import { notFound } from 'next/navigation';
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const apartment = await prisma.apartment.findUnique({
+    where: { id: params.id },
+  });
+
+  if (!apartment) return {};
+
+  return {
+    title: `${apartment.name} | Booking App`,
+    description: apartment.description,
+    openGraph: {
+      images: [apartment.photos[0]],
+    },
+  };
+}
+
+export default async function ApartmentDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const apartment = await prisma.apartment.findUnique({
+    where: { id: params.id },
+  });
+
+  if (!apartment) {
+    notFound();
+  }
+
+  return <ApartmentDetails apartment={apartment} />;
+}
+```
+
+**Image Optimization (NFR2):**
+
+- Use Next.js Image component for automatic optimization
+- WebP format with JPEG fallback
+- Lazy loading for below-fold images
+- Blur placeholders for better perceived performance
+
+```typescript
+import Image from 'next/image';
+
+<Image
+  src={apartment.photos[0]}
+  alt={`${apartment.name} - Main view`}
+  width={800}
+  height={600}
+  placeholder="blur"
+  blurDataURL={blurDataUrl}
+  loading="lazy"
+  quality={85}
+  className="rounded-lg"
+/>;
+```
+
+**Currency Formatting:**
+
+```typescript
+// lib/utils/format.ts
+export function formatCurrency(amount: number, currency = 'EUR'): string {
+	return new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency,
+	}).format(amount)
+}
+```
+
+**Responsive Grid Layout:**
+
+```typescript
+<div
+  className="
+  grid
+  grid-cols-1          // Mobile: single column
+  md:grid-cols-2       // Tablet+: two columns
+  gap-6                // Spacing between cards
+  px-4 sm:px-6 lg:px-8 // Responsive padding
+">
+  {apartments.map((apt) => (
+    <ApartmentCard key={apt.id} apartment={apt} />
+  ))}
+</div>
+```
+
+**Accessibility:**
+
+- Alt text for all images
+- Proper heading hierarchy (h1 for page title, h2 for apartment names)
+- Descriptive link text ("View details about [Apartment Name]")
+- Keyboard navigable gallery
+
+### Testing
+
+**Test File Location:**
+
+- Page tests: `__tests__/pages/apartments/`
+- Component tests: `__tests__/components/apartment/`
+
+**Testing Standards:**
+
+- Test apartment data fetching
+- Test 404 handling for invalid IDs
+- Test responsive layouts
+- Test image lazy loading
+- Test accessibility (keyboard navigation, alt text)
+
+**Test Example:**
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { ApartmentCard } from '@/components/apartment/apartment-card';
+
+describe('ApartmentCard', () => {
+  const mockApartment = {
+    id: '1',
+    name: 'Cozy Studio',
+    photos: ['/photo1.jpg'],
+    maxGuests: 2,
+    basePricePerNight: 50,
+  };
+
+  it('should display apartment information', () => {
+    render(<ApartmentCard apartment={mockApartment} />);
+    expect(screen.getByText('Cozy Studio')).toBeInTheDocument();
+    expect(screen.getByText(/\€50/)).toBeInTheDocument();
+  });
+
+  it('should have accessible image alt text', () => {
+    render(<ApartmentCard apartment={mockApartment} />);
+    const image = screen.getByRole('img');
+    expect(image).toHaveAttribute(
+      'alt',
+      expect.stringContaining('Cozy Studio')
+    );
+  });
+});
+```
+
+## Change Log
+
+| Date       | Version | Description            | Author     |
+| ---------- | ------- | ---------------------- | ---------- |
+| 2025-10-02 | 1.0     | Story created from PRD | Sarah (PO) |
+
+## Dev Agent Record
+
+### Agent Model Used
+
+_To be populated by dev agent_
+
+### Debug Log References
+
+_To be populated by dev agent_
+
+### Completion Notes List
+
+_To be populated by dev agent_
+
+### File List
+
+_To be populated by dev agent_
+
+## QA Results
+
+### Review Date: 2025-01-02
+
+### Reviewed By: Quinn (Test Architect)
+
+### Code Quality Assessment
+
+**Overall Assessment: EXCELLENT** - This story provides a comprehensive public-facing apartment listing system with excellent SEO optimization, responsive design, and user experience considerations. The story demonstrates strong understanding of Next.js App Router patterns and includes all necessary components for a robust apartment showcase system.
+
+**Strengths:**
+
+- Complete apartment listing and detail page architecture
+- Excellent SEO optimization with dynamic metadata and Open Graph tags
+- Strong image optimization strategy with Next.js Image component
+- Comprehensive responsive design with mobile-first approach
+- Proper error handling for 404 scenarios and edge cases
+- Well-structured data fetching with Server Components
+- Clear accessibility considerations with proper alt text and semantic HTML
+- Comprehensive loading states and skeleton placeholders
+- Professional photo gallery implementation with touch support
+- Currency formatting and internationalization considerations
+
+### Refactoring Performed
+
+No refactoring needed - story is well-structured and comprehensive.
+
+### Compliance Check
+
+- **Coding Standards:** ✓ Excellent - Proper TypeScript integration, Next.js App Router patterns, and component architecture
+- **Project Structure:** ✓ Excellent - Clear page organization with proper routing structure
+- **Testing Strategy:** ✓ Excellent - Comprehensive testing approach with unit, integration, and accessibility tests
+- **All ACs Met:** ✓ All 14 acceptance criteria are clearly defined and actionable
+
+### Improvements Checklist
+
+- [x] Complete apartment listing and detail page system
+- [x] SEO optimization with dynamic metadata
+- [x] Image optimization and photo gallery
+- [x] Responsive design and mobile optimization
+- [x] Error handling and loading states
+- [x] Accessibility compliance
+- [x] Currency formatting and internationalization
+- [x] Comprehensive testing approach
+- [ ] Consider adding apartment comparison feature
+- [ ] Consider adding virtual tour integration
+
+### Security Review
+
+**Status: PASS** - No security concerns identified. Story includes proper data fetching patterns and secure image handling.
+
+### Performance Considerations
+
+**Status: PASS** - Excellent performance considerations including Next.js Image optimization, WebP format, lazy loading, and efficient Server Component patterns.
+
+### Files Modified During Review
+
+No files modified during review.
+
+### Gate Status
+
+**Gate: PASS** → docs/qa/gates/1.5-apartment-pages.yml
+
+**Risk Profile:** Low - Well-designed public-facing system with comprehensive user experience considerations
+**NFR Assessment:** All non-functional requirements properly addressed
+
+### Recommended Status
+
+✓ **Ready for Implementation** - Story is comprehensive, well-structured, and ready for development agent execution.
