@@ -52,4 +52,71 @@
 body {
 	background-color: hsl(var(--background));
 	color: hsl(var(--foreground));
+	font-feature-settings:
+		'rlig' 1,
+		'calt' 1;
+}
+
+/* Typography Styles */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: 600;
+	line-height: 1.2;
+	letter-spacing: -0.02em;
+}
+
+h1 {
+	font-size: 3rem;
+	line-height: 1;
+}
+
+h2 {
+	font-size: 2.25rem;
+	line-height: 2.5rem;
+}
+
+h3 {
+	font-size: 1.875rem;
+	line-height: 2.25rem;
+}
+
+h4 {
+	font-size: 1.5rem;
+	line-height: 2rem;
+}
+
+h5 {
+	font-size: 1.25rem;
+	line-height: 1.75rem;
+}
+
+h6 {
+	font-size: 1.125rem;
+	line-height: 1.75rem;
+}
+
+p {
+	margin-bottom: 1rem;
+	line-height: 1.625;
+}
+
+/* Focus Visible Styles for Accessibility */
+*:focus-visible {
+	outline: 2px solid hsl(var(--ring));
+	outline-offset: 2px;
+}
+
+/* Smooth Scrolling */
+html {
+	scroll-behavior: smooth;
+}
+
+/* Selection Styles */
+::selection {
+	background-color: hsl(var(--primary));
+	color: hsl(var(--primary-foreground));
 }
