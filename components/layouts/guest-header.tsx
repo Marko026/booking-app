@@ -18,98 +18,113 @@ export function GuestHeader() {
 	}
 
 	return (
-		<header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-			<nav className="container flex h-16 items-center justify-between">
-				{/* Logo */}
-				<div className="flex items-center gap-6 md:gap-10">
-					<Link href="/" className="flex items-center space-x-2">
-						<span className="inline-block text-xl font-bold">
-							Booking<span className="text-primary">App</span>
-						</span>
-					</Link>
+		<header className="sticky top-0 z-40 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm">
+			<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+				<nav className="flex h-16 items-center justify-between">
+					{/* Logo */}
+					<div className="flex items-center gap-6 md:gap-10">
+						<Link href="/" className="flex items-center space-x-2">
+							<span className="inline-block text-xl font-bold text-gray-900">
+								Booking<span className="text-primary">App</span>
+							</span>
+						</Link>
 
-					{/* Desktop Navigation */}
-					<div className="hidden md:flex md:gap-6">
-						{navigation.guest.map((item) => (
-							<Link
-								key={item.name}
-								href={item.href}
-								className={cn(
-									'text-sm font-medium transition-colors hover:text-primary',
-									isActive(item.href) ? 'text-foreground' : 'text-foreground/60'
-								)}
-							>
-								{item.name}
-							</Link>
-						))}
+						{/* Desktop Navigation */}
+						<div className="hidden md:flex md:gap-8">
+							{navigation.guest.map((item) => (
+								<Link
+									key={item.name}
+									href={item.href}
+									className={cn(
+										'text-sm font-medium transition-colors hover:text-primary',
+										isActive(item.href)
+											? 'text-primary font-semibold'
+											: 'text-gray-600 hover:text-gray-900'
+									)}
+								>
+									{item.name}
+								</Link>
+							))}
+						</div>
 					</div>
-				</div>
 
-				{/* Desktop CTA */}
-				<div className="hidden items-center gap-4 md:flex">
-					<Link href="/admin/login">
-						<Button variant="ghost" size="sm">
-							Admin Login
-						</Button>
-					</Link>
-					<Link href="/apartments">
-						<Button size="sm">Book Now</Button>
-					</Link>
-				</div>
+					{/* Desktop CTA */}
+					<div className="hidden items-center gap-3 md:flex">
+						<Link href="/admin/login">
+							<Button
+								variant="ghost"
+								size="sm"
+								className="text-gray-600 hover:text-gray-900"
+							>
+								Admin Login
+							</Button>
+						</Link>
+						<Link href="/apartments">
+							<Button size="sm" className="bg-primary hover:bg-primary/90">
+								Book Now
+							</Button>
+						</Link>
+					</div>
 
-				{/* Mobile Menu Button */}
-				<button
-					type="button"
-					className="md:hidden"
-					onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-					aria-label="Toggle menu"
-				>
-					{mobileMenuOpen ? (
-						<X className="h-6 w-6" />
-					) : (
-						<Menu className="h-6 w-6" />
-					)}
-				</button>
-			</nav>
+					{/* Mobile Menu Button */}
+					<button
+						type="button"
+						className="md:hidden text-gray-600 hover:text-gray-900"
+						onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+						aria-label="Toggle menu"
+					>
+						{mobileMenuOpen ? (
+							<X className="h-6 w-6" />
+						) : (
+							<Menu className="h-6 w-6" />
+						)}
+					</button>
+				</nav>
+			</div>
 
 			{/* Mobile Menu */}
 			{mobileMenuOpen && (
-				<div className="border-t md:hidden">
-					<div className="container space-y-1 py-4">
-						{navigation.guest.map((item) => (
-							<Link
-								key={item.name}
-								href={item.href}
-								className={cn(
-									'block rounded-md px-3 py-2 text-base font-medium',
-									isActive(item.href)
-										? 'bg-primary/10 text-primary'
-										: 'text-foreground/60 hover:bg-accent hover:text-foreground'
-								)}
-								onClick={() => setMobileMenuOpen(false)}
-							>
-								{item.name}
-							</Link>
-						))}
-						<div className="space-y-2 pt-4">
-							<Link
-								href="/admin/login"
-								className="block"
-								onClick={() => setMobileMenuOpen(false)}
-							>
-								<Button variant="outline" size="sm" className="w-full">
-									Admin Login
-								</Button>
-							</Link>
-							<Link
-								href="/apartments"
-								className="block"
-								onClick={() => setMobileMenuOpen(false)}
-							>
-								<Button size="sm" className="w-full">
-									Book Now
-								</Button>
-							</Link>
+				<div className="border-t bg-white md:hidden">
+					<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+						<div className="space-y-1 py-4">
+							{navigation.guest.map((item) => (
+								<Link
+									key={item.name}
+									href={item.href}
+									className={cn(
+										'block rounded-md px-3 py-2 text-base font-medium transition-colors',
+										isActive(item.href)
+											? 'bg-primary/10 text-primary'
+											: 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+									)}
+									onClick={() => setMobileMenuOpen(false)}
+								>
+									{item.name}
+								</Link>
+							))}
+							<div className="space-y-2 pt-4 border-t">
+								<Link
+									href="/admin/login"
+									className="block"
+									onClick={() => setMobileMenuOpen(false)}
+								>
+									<Button variant="outline" size="sm" className="w-full">
+										Admin Login
+									</Button>
+								</Link>
+								<Link
+									href="/apartments"
+									className="block"
+									onClick={() => setMobileMenuOpen(false)}
+								>
+									<Button
+										size="sm"
+										className="w-full bg-primary hover:bg-primary/90"
+									>
+										Book Now
+									</Button>
+								</Link>
+							</div>
 						</div>
 					</div>
 				</div>

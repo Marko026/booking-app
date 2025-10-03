@@ -1,26 +1,39 @@
-export default function Home() {
+import { ApartmentCard } from '@/components/apartment/apartment-card'
+import { prisma } from '@/lib/db'
+
+export default async function Home() {
+	const apartments = await prisma.apartment.findMany({
+		where: {
+			status: 'ACTIVE',
+		},
+		orderBy: {
+			createdAt: 'asc',
+		},
+	})
+
+	// Parse photos and amenities from JSON strings
+	const apartmentsWithParsedData = apartments.map((apartment) => ({
+		...apartment,
+		photos: JSON.parse(apartment.photos) as string[],
+		amenities: apartment.amenities as Record<string, boolean>,
+	}))
+
 	return (
-		<div className="container py-12 md:py-24">
-			<div className="mx-auto flex max-w-5xl flex-col items-center justify-center text-center">
-				<h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-					Welcome to <span className="text-primary">BookingApp</span>
-				</h1>
-				<p className="mt-6 text-lg text-muted-foreground md:text-xl">
-					A modern apartment booking and management system built with Next.js 15
-				</p>
-				<div className="mt-10 flex flex-col gap-4 sm:flex-row">
-					<a
-						href="/apartments"
-						className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-					>
-						Browse Apartments
-					</a>
-					<a
-						href="/bookings/lookup"
-						className="inline-flex h-11 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-					>
-						Manage Booking
-					</a>
+		<div className="py-12">
+			<div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+				<div className="text-center mb-16">
+					<h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+						Welcome to <span className="text-primary">BookingApp</span>
+					</h1>
+					<p className="mt-6 text-lg text-gray-600 md:text-xl max-w-2xl mx-auto">
+						Discover your perfect stay in our carefully selected apartments
+					</p>
+				</div>
+
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+					{apartmentsWithParsedData.map((apartment) => (
+						<ApartmentCard key={apartment.id} apartment={apartment} />
+					))}
 				</div>
 			</div>
 		</div>
