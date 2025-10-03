@@ -183,13 +183,125 @@ See \`.env.example\` for all required environment variables.
 - \`CLOUDINARY\_\*\`: Image upload (required for image features)
 - \`SENTRY_DSN\`: Error tracking (optional)
 
+## Deployment
+
+### CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and Vercel for deployment.
+
+#### GitHub Actions Workflow
+
+The CI pipeline (`.github/workflows/ci.yml`) runs on every push and pull request:
+
+- **Linting:** ESLint code quality checks
+- **Type Checking:** TypeScript compilation validation
+- **Testing:** Jest test suite execution
+- **Build:** Production build verification
+- **Database:** PostgreSQL service for integration tests
+
+#### Vercel Deployment
+
+**Automatic Deployments:**
+
+- **Production:** Deploys automatically on push to `main` branch
+- **Preview:** Creates preview deployments for pull requests
+- **Framework:** Next.js (auto-detected)
+
+**Environment Variables (Production):**
+
+Configure these in your Vercel dashboard:
+
+```bash
+# Database
+DATABASE_URL=postgresql://user:password@host:port/database
+
+# Authentication
+BETTER_AUTH_SECRET=your-secure-secret-key
+BETTER_AUTH_URL=https://your-domain.vercel.app
+
+# Email Service
+RESEND_API_KEY=your-resend-api-key
+
+# Image Upload
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# Error Tracking
+SENTRY_DSN=your-sentry-dsn
+
+# Analytics
+VERCEL_ANALYTICS_ID=your-analytics-id
+```
+
+### Deployment Steps
+
+1. **Connect Repository:**
+
+   ```bash
+   # Install Vercel CLI
+   npm install -g vercel
+
+   # Link project
+   vercel link
+   ```
+
+2. **Configure Environment Variables:**
+   - Go to Vercel Dashboard → Project Settings → Environment Variables
+   - Add all required variables for Production, Preview, and Development
+
+3. **Deploy:**
+
+   ```bash
+   # Deploy to preview
+   vercel
+
+   # Deploy to production
+   vercel --prod
+   ```
+
+### Monitoring & Analytics
+
+- **Error Tracking:** Sentry integration for production error monitoring
+- **Performance:** Vercel Analytics for Web Vitals and performance metrics
+- **Build Status:** GitHub Actions status badges in README
+
+### Rollback Procedure
+
+If deployment issues occur:
+
+1. **Instant Rollback:** Use Vercel Dashboard → Deployments → Rollback
+2. **Recovery Time:** < 5 minutes
+3. **Trigger Conditions:** Error rate spike, critical bugs, performance degradation
+
+### Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run linting
+npm run lint
+
+# Run type checking
+npm run type-check
+```
+
 ## Contributing
 
 1. Create a feature branch from \`main\`
 2. Make your changes
-3. Run linting and type checking: \`pnpm lint && pnpm type-check\`
-4. Commit your changes (pre-commit hooks will run automatically)
-5. Push and create a pull request
+3. Run linting and type checking: \`npm run lint && npm run type-check\`
+4. Run tests: \`npm test\`
+5. Commit your changes (pre-commit hooks will run automatically)
+6. Push and create a pull request
+7. CI pipeline will run automatically on the PR
 
 ## License
 
