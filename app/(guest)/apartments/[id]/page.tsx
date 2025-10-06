@@ -10,8 +10,9 @@ interface ApartmentDetailPageProps {
 export async function generateMetadata({
 	params,
 }: ApartmentDetailPageProps): Promise<Metadata> {
+	const { id } = await params
 	const apartment = await prisma.apartment.findUnique({
-		where: { id: params.id },
+		where: { id },
 	})
 
 	if (!apartment) {
@@ -44,8 +45,9 @@ export async function generateMetadata({
 export default async function ApartmentDetailPage({
 	params,
 }: ApartmentDetailPageProps) {
+	const { id } = await params
 	const apartment = await prisma.apartment.findUnique({
-		where: { id: params.id },
+		where: { id },
 	})
 
 	if (!apartment) {
